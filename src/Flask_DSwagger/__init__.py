@@ -1,0 +1,165 @@
+
+import yaml
+from flask import Response
+from collections import OrderedDict
+import json
+
+
+
+class model_docString(object):
+    @classmethod
+    def get_swagger_desc(cls):
+        # Objects like BaseQuerySet and Q are being added
+        # to json and are making swagger javascript client
+        # crash, thus we ignore anything that is not coming
+        # from BaseObject because they do not implemented
+        # this method
+        # See justification here:
+        # http://effbot.org/pyfaq/how-do-i-check-if-an-object-is-an-instance-of-a-given-class-or-of-a-subclass-of-it.htm
+        return cls.__doc__
+
+
+
+class api_swagger_register():
+    json_cache = dict()  # generated json gets stored here
+
+    def __init__(self, app):
+        self.app = app
+        self.paths = []
+
+    def generate(self,
+                 db_models,
+                 path_to_capture="/api/",
+                 path_to_spec_json="/api/json",
+                 version="1.0.0",
+                 title="API",
+                 description="API documentation",
+                 hide=[]):
+
+        json_result = OrderedDict()
+        json_result['swagger'] = '2.0'
+        json_result["info"] = {
+                           "version": version,
+                           "title": title,
+                           "description": description
+                       }
+        json_result['basePath'] = path_to_capture
+        json_result['consumes'] = ['application/json']
+        json_result['produces'] = ['application/json']
+        json_result['paths'] = OrderedDict()
+        json_result['definitions'] = OrderedDict()
+
+        data = self.__extractEndPoints(path_to_capture, hide)
+
+        self.__processDocString(data, json_result)
+
+        self.__extractModels(db_models=db_models, json_result=json_result)
+
+        api_swagger_register.json_cache[path_to_spec_json] = json_result
+
+        def f():
+            return Response(json.dumps(api_swagger_register.json_cache[path_to_spec_json]), mimetype='application/json')
+
+        self.app.add_url_rule(path_to_spec_json, path_to_spec_json, view_func=f)
+
+
+    def __processDocString(self, data, json_result):
+
+        for endpoint, yaml_data in data:
+
+            # new_url = replace_parameters(rule.rule)     # '/api/v1.0/site/{id}'
+            new_url = yaml_data.keys()[0]                 # '/site/{id}'
+            if json_result['paths'].has_key(new_url):
+                method = yaml_data[new_url].keys()[0]   # put
+                spec = yaml_data[new_url].values()[0]   # specifications
+                json_result['paths'][new_url][method] = spec
+            else:
+                json_result['paths'].update(yaml_data)
+
+
+    def __extractEndPoints(self, path_to_capture, hide):
+
+        toRet = []
+
+        for rule in self.app.url_map.iter_rules():
+            if not rule.rule.startswith(path_to_capture):
+                continue
+            if rule.endpoint in hide:
+                continue
+            if self.app.view_functions[rule.endpoint].__doc__ is None:
+                # Ignore anything without documentation
+                continue
+            if len(self.app.view_functions[rule.endpoint].__doc__.strip()) == 0:
+                # Ignore anything without documentation
+                continue
+
+            docstring_yml = self.app.view_functions[rule.endpoint].__doc__
+
+            yaml_data = yaml.load(docstring_yml)
+
+            toRet.append((rule.endpoint, yaml_data))
+
+        return toRet
+
+
+    def __extractModels(self, db_models, json_result):
+
+
+        if type(db_models) is dict:
+            items = db_models.items()
+        else:
+            items = db_models.__dict__.items()
+
+        for name, cls in items:
+            if cls.__doc__ is not None and not name.startswith("__") and not len(cls.__doc__.strip()) == 0:
+                try:
+                    # import pdb
+                    # pdb.set_trace()
+                    #if not isinstance(cls, db_models.BaseObject):
+                        # objects like BaseQuerySet and Q are being added
+                        # to json and are making swagger javascript client
+                        # crash, thus we ignore anything that is not coming
+                        # from BaseObject. Sometimes isinstance will throw
+                        # an exception is the class is a list of strings!
+                        #continue
+                    if getattr(cls, "get_swagger_desc", None):
+                        yaml_data = yaml.load(cls.get_swagger_desc())#cls.__doc__)
+                        json_result['definitions'][name] = yaml_data
+                except Exception, e:
+                    print name, "->", e
+
+
+# def list_parameters(url):
+#     matchObjects = re.findall("\{(\w+)\}", url)
+#     return matchObjects
+#
+#
+# def extract_param_name(arg_line):
+#     """given this:
+#         id (string): Description of id here
+#     we return:
+#         id
+#     """
+#     arr = arg_line.split(':')
+#     arr = arr[0].split('(')
+#     return arr[0].strip()
+#
+#
+# def extract_param_description(arg_line):
+#     """given this:
+#         id (string): Description of id here
+#     we return:
+#         Description of id here
+#     """
+#     arr = arg_line.split(':')
+#     if len(arr) > 1:
+#         return arr[1]
+#     return ""
+
+
+# def replace_parameters(url):
+#     new_url = url
+#     matchObjects = re.findall("(<(?:\w+:)?(\w+)>)", url)
+#     for grp, varname in matchObjects:
+#         new_url = new_url.replace(grp, "{" + varname + "}")
+#     return new_url
