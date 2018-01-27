@@ -36,24 +36,13 @@ class api_swagger_register():
                  description="API documentation",
                  hide=[]):
 
-        json_result = OrderedDict()
-        json_result['swagger'] = '2.0'
-        json_result["info"] = {
-                           "version": version,
-                           "title": title,
-                           "description": description
-                       }
-        json_result['basePath'] = path_to_capture
-        json_result['consumes'] = ['application/json']
-        json_result['produces'] = ['application/json']
-        json_result['paths'] = OrderedDict()
-        json_result['definitions'] = OrderedDict()
+        json_result = self.__startStructure__(version, title, description, path_to_capture)
 
-        data = self.__extractEndPoints(path_to_capture, hide)
+        data = self.__extractEndPoints__(self.app, path_to_capture, hide)
 
-        self.__processDocString(data, json_result)
+        self.__processDocString__(data, json_result)
 
-        self.__extractModels(db_models=db_models, json_result=json_result)
+        self.__extractModels__(db_models=db_models, json_result=json_result)
 
         api_swagger_register.json_cache[path_to_spec_json] = json_result
 
@@ -63,7 +52,7 @@ class api_swagger_register():
         self.app.add_url_rule(path_to_spec_json, path_to_spec_json, view_func=f)
 
 
-    def __processDocString(self, data, json_result):
+    def __processDocString__(self, data, json_result):
 
         for endpoint, yaml_data in data:
 
@@ -77,23 +66,23 @@ class api_swagger_register():
                 json_result['paths'].update(yaml_data)
 
 
-    def __extractEndPoints(self, path_to_capture, hide):
+    def __extractEndPoints__(self, app, path_to_capture, hide):
 
         toRet = []
 
-        for rule in self.app.url_map.iter_rules():
+        for rule in app.url_map.iter_rules():
             if not rule.rule.startswith(path_to_capture):
                 continue
             if rule.endpoint in hide:
                 continue
-            if self.app.view_functions[rule.endpoint].__doc__ is None:
+            if app.view_functions[rule.endpoint].__doc__ is None:
                 # Ignore anything without documentation
                 continue
-            if len(self.app.view_functions[rule.endpoint].__doc__.strip()) == 0:
+            if len(app.view_functions[rule.endpoint].__doc__.strip()) == 0:
                 # Ignore anything without documentation
                 continue
 
-            docstring_yml = self.app.view_functions[rule.endpoint].__doc__
+            docstring_yml = app.view_functions[rule.endpoint].__doc__
 
             yaml_data = yaml.load(docstring_yml)
 
@@ -102,7 +91,7 @@ class api_swagger_register():
         return toRet
 
 
-    def __extractModels(self, db_models, json_result):
+    def __extractModels__(self, db_models, json_result):
 
 
         if type(db_models) is dict:
@@ -129,37 +118,19 @@ class api_swagger_register():
                     print name, "->", e
 
 
-# def list_parameters(url):
-#     matchObjects = re.findall("\{(\w+)\}", url)
-#     return matchObjects
-#
-#
-# def extract_param_name(arg_line):
-#     """given this:
-#         id (string): Description of id here
-#     we return:
-#         id
-#     """
-#     arr = arg_line.split(':')
-#     arr = arr[0].split('(')
-#     return arr[0].strip()
-#
-#
-# def extract_param_description(arg_line):
-#     """given this:
-#         id (string): Description of id here
-#     we return:
-#         Description of id here
-#     """
-#     arr = arg_line.split(':')
-#     if len(arr) > 1:
-#         return arr[1]
-#     return ""
+    def __startStructure__(self, version, title, description, path_to_capture):
 
+        json_result = OrderedDict()
+        json_result['swagger'] = '2.0'
+        json_result["info"] = {
+                           "version": version,
+                           "title": title,
+                           "description": description
+                       }
+        json_result['basePath'] = path_to_capture
+        json_result['consumes'] = ['application/json']
+        json_result['produces'] = ['application/json']
+        json_result['paths'] = OrderedDict()
+        json_result['definitions'] = OrderedDict()
 
-# def replace_parameters(url):
-#     new_url = url
-#     matchObjects = re.findall("(<(?:\w+:)?(\w+)>)", url)
-#     for grp, varname in matchObjects:
-#         new_url = new_url.replace(grp, "{" + varname + "}")
-#     return new_url
+        return json_result

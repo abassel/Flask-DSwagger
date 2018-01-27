@@ -66,7 +66,8 @@ setup(
         # eg: 'keyword1', 'keyword2', 'keyword3',
     ],
     install_requires=[
-        'Flask>=0.12.2'
+        'Flask>=0.12.2',
+        'PyYAML>=3.12'
         # eg: 'aspectlib==1.1.1', 'six>=1.7',
     ],
     # extras_require={

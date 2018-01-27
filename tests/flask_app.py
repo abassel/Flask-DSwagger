@@ -104,9 +104,9 @@ def user_getbyname(id):
     return "Hello {}!".format(id)
 
 
-api_swag = fds.api_swagger_register(app)
+# api_swag = fds.api_swagger_register(app)
 
-api_swag.generate(db_models={"User": User})
+# api_swag.generate(db_models={"User": User})
 
 if __name__ == '__main__':
     app.run()

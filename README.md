@@ -32,28 +32,59 @@ In the example bellow, Flask-DSwagger will generate automatically an OpenAPI 2.0
 ```python
 
 from flask import Flask
+import mongoengine as mongo
+
+import Flask_DSwagger as fds
+
 app = Flask(__name__)
+
+class User(mongo.Document, fds.model_docString):
+    """
+    type: object
+    properties:
+      first_name:
+        type: string
+        description: His/Her first name.
+      last_name:
+        type: string
+        description: His/Her last name.
+      email:
+        type: string
+        description: His/Her email.
+    """
+    first_name = mongo.StringField()
+    last_name = mongo.StringField()
+    email = mongo.StringField()
 
 
 @app.route('/')
 def hello():
-    return "Hello World!"
+    return "I will not be in the documentation because my path does not start with /api"
 
 
-@app.route('/api/hello/<name>')
-def hello_name(name):
+@app.route('/api/user/<id>')
+def user_getbyname(id):
     """
-    "/hello":   # Must start for forward slash
+    "/user/{id}":   # Must start with forward slash
         get:
 
-            summary: "Endpoint to return information about logged user"
+            summary: "Endpoint to return information about a single user"
 
-            description: "List information about your self!"
+            description: "List information about user of a given id"
 
-            tags: ["me"]
+            tags: ["userbyid"]
+
+            operationId: "get_user_by_id"
 
             produces:
-              - "application/json"
+                - "application/json"
+
+            parameters:
+            - name: id
+              in: path
+              description: "id of site in the database"
+              required: true
+              type: "string"
 
             responses:
               "200":
@@ -66,11 +97,13 @@ def hello_name(name):
                   $ref: "#/definitions/ErrorModel"
 
     """
-    return "Hello {}!".format(name)
+
+    return "Hello {}!".format(id)
 
 
-api_swag.generate(db_models=db, path_to_capture=api_path, path_to_spec_json=api_path + "json")
+api_swag = fds.api_swagger_register(app)
 
+api_swag.generate(db_models={"User": User})
 
 if __name__ == '__main__':
     app.run()
