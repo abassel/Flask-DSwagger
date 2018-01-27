@@ -1,0 +1,44 @@
+sudo: false
+language: python
+cache: pip
+
+
+services:
+- mongodb
+
+
+python:
+- '3.6'
+- '3.5'
+- '3.4'
+- '3.3'
+- '2.7'
+- 'pypy'
+
+
+before_install:
+  - uname -a
+  - lsb_release -a
+  - python --version
+  - virtualenv --version
+  - easy_install --version
+  - pip --version
+
+
+install:
+  - pip install -r requirement.txt
+  - pip install coveralls
+
+
+script:
+  - py.test --cov-report term-missing --cov=Flask_DSwagger tests -v
+
+
+after_success:
+  - coveralls
+
+
+notifications:
+  email:
+    on_success: always #never
+    on_failure: always
