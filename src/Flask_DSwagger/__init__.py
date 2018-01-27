@@ -57,10 +57,10 @@ class api_swagger_register():
         for endpoint, yaml_data in data:
 
             # new_url = replace_parameters(rule.rule)     # '/api/v1.0/site/{id}'
-            new_url = yaml_data.keys()[0]                 # '/site/{id}'
-            if json_result['paths'].has_key(new_url):
-                method = yaml_data[new_url].keys()[0]   # put
-                spec = yaml_data[new_url].values()[0]   # specifications
+            new_url = list(yaml_data.keys())[0]                 # '/site/{id}'
+            if new_url in json_result['paths']:
+                method = list(yaml_data[new_url].keys())[0]   # put
+                spec = list(yaml_data[new_url].values())[0]   # specifications
                 json_result['paths'][new_url][method] = spec
             else:
                 json_result['paths'].update(yaml_data)
@@ -95,9 +95,9 @@ class api_swagger_register():
 
 
         if type(db_models) is dict:
-            items = db_models.items()
+            items = list(db_models.items())
         else:
-            items = db_models.__dict__.items()
+            items = list(db_models.__dict__.items())
 
         for name, cls in items:
             if cls.__doc__ is not None and not name.startswith("__") and not len(cls.__doc__.strip()) == 0:
@@ -114,8 +114,8 @@ class api_swagger_register():
                     if getattr(cls, "get_swagger_desc", None):
                         yaml_data = yaml.load(cls.get_swagger_desc())#cls.__doc__)
                         json_result['definitions'][name] = yaml_data
-                except Exception, e:
-                    print name, "->", e
+                except Exception as e:
+                    print((name, "->", e))
 
 
     def __startStructure__(self, version, title, description, path_to_capture):
