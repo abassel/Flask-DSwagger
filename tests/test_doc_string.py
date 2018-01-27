@@ -13,7 +13,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../src'))
 import Flask_DSwagger as fds
 
 
-from flask_app import app, User
+from .flask_app import app, User
 
 
 def test_parts():
@@ -63,17 +63,17 @@ def test_parts():
     data = swagger.__extractEndPoints__(app, "/api/", [])
 
     assert len(data) == 1
-    assert data[0][1].keys() == ['/user/{id}']
+    assert list(data[0][1].keys()) == ['/user/{id}']
 
     swagger.__processDocString__(data, json_result)
 
-    assert json_result["paths"].keys() == ['/user/{id}']
+    assert list(json_result["paths"].keys()) == ['/user/{id}']
 
     # raise Exception("here")
 
     swagger.__extractModels__(db_models={"User": User}, json_result=json_result)
 
-    assert json_result["definitions"].keys() == ['User']
+    assert list(json_result["definitions"].keys()) == ['User']
 
     # from pprint import pprint
     # pprint(json_result["definitions"]['User'])
@@ -104,9 +104,9 @@ def test_via_flask():
     assert json_result["info"]["title"] == "MyAPI"
     assert json_result["info"]["description"] == "Unit testing the API"
 
-    assert json_result["paths"].keys() == ['/user/{id}']
+    assert list(json_result["paths"].keys()) == ['/user/{id}']
 
-    assert json_result["definitions"].keys() == ['User']
+    assert list(json_result["definitions"].keys()) == ['User']
 
     assert json_result["definitions"]['User']['type'] == 'object'
     assert json_result["definitions"]['User']['properties']['email']['type'] == 'string'
