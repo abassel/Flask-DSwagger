@@ -29,9 +29,9 @@ def read(*names, **kwargs):
 
 setup(
     name='Flask-DSwagger',
-    version='0.0.1',
+    version='0.0.3',
     license='MIT license',
-    description='Provides safe reference fields for mongoengine and Flask-admin dashboard.',
+    description='Convert Doc String OpenAPI 2.0 in a single endpoint',
     author='Alexandre Bassel',
     author_email='abassel@gmail.com',
     url='https://github.com/abassel/Flask-DSwagger',
