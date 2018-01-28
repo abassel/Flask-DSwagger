@@ -1,23 +1,21 @@
 
 # Flask-DSwagger
 
-[![Build Status](https://travis-ci.org/abassel/mongosafe.svg?branch=master)](https://travis-ci.org/abassel/mongosafe)
-[![Coverage Status](https://coveralls.io/repos/github/abassel/mongosafe/badge.svg?branch=master)](https://coveralls.io/github/abassel/mongosafe?branch=master)
-[![PyPI version](https://badge.fury.io/py/mongosafe.svg)](https://badge.fury.io/py/mongosafe)
-[![PyPI](https://img.shields.io/pypi/wheel/Django.svg)](https://pypi.python.org/pypi/mongosafe)
+[![Build Status](https://travis-ci.org/abassel/Flask-DSwagger.svg?branch=master)](https://travis-ci.org/abassel/Flask-DSwagger)
+[![Coverage Status](https://coveralls.io/repos/github/abassel/Flask-DSwagger/badge.svg?branch=master)](https://coveralls.io/github/abassel/Flask-DSwagger?branch=master)
+[![PyPI version](https://badge.fury.io/py/Flask-DSwagger.svg)](https://badge.fury.io/py/Flask-DSwagger)
+[![PyPI](https://img.shields.io/pypi/wheel/Flask-DSwagger.svg)](https://pypi.python.org/pypi/Flask-DSwagger)
 
 
-Provides safe reference fields for Mongoengine and Flask-admin dashboard without the need to migrate to MongoMallard!
-It is heavily based(stolen) on MongoMallard.
+Provides ability to converge all OpenAPI 2.0 Doc String documentation in flask endpoints to a single, unified endpoint where it can be consumed by any OpenAPI 2.0 compatible client
 
+
+[OpenAPI 2.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md) is a standard to describe an API interface.
+
+[Flask](http://flask.pocoo.org) is a microframework for Python based on Werkzeug, Jinja 2 and good intentions.
 
 [Mongoengine](https://github.com/MongoEngine/mongoengine) is an ORM-like layer on top of PyMongo.
 
-[Flask-admin](https://github.com/flask-admin/flask-admin) is a simple and extensible administrative interface framework for Flask.
-
-[MongoMallard](https://hack.close.io/posts/mongomallard) is a fast ORM based on MongoEngine
-
-> Please note: This may not be the fastest way to manipulate data but it protects you from null references that will break Flask-admin.
 
 ## Install
 
@@ -110,7 +108,14 @@ if __name__ == '__main__':
 
 ```
 
+### Expected output:
+
+Go and visit /api/json to see the spec. Point any OpenAPI 2.0 client to that url to get access to the API:
+
+![API Spec](./APIspec.png)
+
+
 ## References :notebook:
-- [MongoMallard](https://hack.close.io/posts/mongomallard)
+- [OpenAPI 2.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md)
+- [Flask](http://flask.pocoo.org)
 - [Mongoengine](https://github.com/MongoEngine/mongoengine)
-- [Flask-admin](https://github.com/flask-admin/flask-admin)
