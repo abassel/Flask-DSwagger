@@ -7,7 +7,7 @@
 [![PyPI](https://img.shields.io/pypi/wheel/Flask-DSwagger.svg)](https://pypi.python.org/pypi/Flask-DSwagger)
 
 
-Provides ability to converge all OpenAPI 2.0 Doc String documentation in flask endpoints to a single, unified endpoint where it can be consumed by any OpenAPI 2.0 compatible client
+Provides ability to converge all OpenAPI 2.0 Doc String documentation in flask endpoints to a single, unified endpoint where any OpenAPI 2.0 compatible client can consume it.
 
 
 [OpenAPI 2.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md) is a standard to describe an API interface.
@@ -114,6 +114,11 @@ Go and visit /api/json to see the spec. Point any OpenAPI 2.0 client to that url
 
 ![API Spec](./APIspec.png)
 
+
+### Advantages
+- You are forced to create documentation to use the endpoint.
+- You don't need to implement any client.
+- Your OpenAPI spec and code are side by side.
 
 ## References :notebook:
 - [OpenAPI 2.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md)
